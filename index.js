@@ -2,13 +2,30 @@ const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whis
 const { Boom } = require('@hapi/boom');
 const express = require('express');
 const pino = require('pino');
-const qrcode = require('qrcode-terminal');
+const qrcode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  res.send('Bot de Tecnolandia.cl activo 24/7 en la nube 🚀');
+let qrGlobal = '';
+
+app.get('/', async (req, res) => {
+  if (qrGlobal) {
+    try {
+      const qrImage = await qrcode.toDataURL(qrGlobal);
+      res.send(`
+        <div style="text-align:center; margin-top:50px; font-family:sans-serif;">
+          <h2>Escanea este código QR para conectar WhatsApp de Tecnolandia.cl</h2>
+          <img src="${qrImage}" alt="QR WhatsApp" style="width:300px; height:300px;"/>
+          <p>Actualiza la página si el código expira.</p>
+        </div>
+      `);
+    } catch (err) {
+      res.send('Generando código QR, por favor recarga en unos segundos...');
+    }
+  } else {
+    res.send('Bot de Tecnolandia.cl activo 24/7. El WhatsApp ya está vinculado o el QR se está generando.');
+  }
 });
 
 app.listen(PORT, () => {
@@ -27,8 +44,8 @@ async function connectToWhatsApp() {
     const { connection, lastDisconnect, qr } = update;
     
     if (qr) {
-      console.log('--- NUEVO CÓDIGO QR GENERADO ---');
-      qrcode.generate(qr, { small: true });
+      qrGlobal = qr;
+      console.log('--- NUEVO QR DISPONIBLE EN LA WEB ---');
     }
 
     if (connection === 'close') {
@@ -38,6 +55,7 @@ async function connectToWhatsApp() {
         connectToWhatsApp();
       }
     } else if (connection === 'open') {
+      qrGlobal = '';
       console.log('¡Conectado exitosamente a WhatsApp de Tecnolandia.cl! ✅');
     }
   });
