@@ -2,7 +2,6 @@ const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whis
 const { Boom } = require('@hapi/boom');
 const express = require('express');
 const pino = require('pino');
-const qrcode = require('qrcode-terminal');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,13 +24,8 @@ async function connectToWhatsApp() {
   });
 
   sock.ev.on('connection.update', (update) => {
-    const { connection, lastDisconnect, qr } = update;
+    const { connection, lastDisconnect } = update;
     
-    if (qr) {
-      console.log('--- ESCANEA ESTE CÓDIGO QR ---');
-      qrcode.generate(qr, { small: true });
-    }
-
     if (connection === 'close') {
       const shouldReconnect = (lastDisconnect?.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
       console.log('Conexión cerrada. Reconectando...', shouldReconnect);
@@ -60,11 +54,6 @@ async function connectToWhatsApp() {
         text: '✨ *Tecnolandia.cl* - Hola, gracias por escribirnos. Todos nuestros equipos y reparaciones cuentan con 3 meses de garantía. ¿En qué modelo estás interesado?' 
       });
     }
-  });
-}
-
-connectToWhatsApp();
-
   });
 }
 
