@@ -15,7 +15,6 @@ app.listen(PORT, () => {
   console.log(`Servidor web corriendo en el puerto ${PORT}`);
 });
 
-// Función para iniciar la conexión con WhatsApp
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
 
@@ -29,7 +28,7 @@ async function connectToWhatsApp() {
     const { connection, lastDisconnect, qr } = update;
     
     if (qr) {
-      console.log('--- ESCANEA ESTE CÓDIGO QR EN TUS LOGS DE RENDER ---');
+      console.log('--- ESCANEA ESTE CÓDIGO QR ---');
       qrcode.generate(qr, { small: true });
     }
 
@@ -46,7 +45,6 @@ async function connectToWhatsApp() {
 
   sock.ev.on('creds.update', saveCreds);
 
-  // Escuchar mensajes entrantes
   sock.ev.on('messages.upsert', async ({ messages }) => {
     const m = messages[0];
     if (!m.message || m.key.fromMe) return;
@@ -57,12 +55,16 @@ async function connectToWhatsApp() {
     if (!messageContent) return;
     console.log(`Mensaje recibido de ${remoteJid}: ${messageContent}`);
 
-    // Respuesta automática básica para pruebas
     if (messageContent.toLowerCase().includes('hola') || messageContent.toLowerCase().includes('precio')) {
       await sock.sendMessage(remoteJid, { 
-        text: '✨ *Tecnolandia.cl* - Hola, gracias por escribirnos. Todos nuestros equipos y reparaciones cuentan con 3 meses de garantía. ¿En qué modelo de iPhone estás interesado?' 
+        text: '✨ *Tecnolandia.cl* - Hola, gracias por escribirnos. Todos nuestros equipos y reparaciones cuentan con 3 meses de garantía. ¿En qué modelo estás interesado?' 
       });
     }
+  });
+}
+
+connectToWhatsApp();
+
   });
 }
 
