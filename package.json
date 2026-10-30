@@ -1,1 +1,13 @@
+{
+  "name": "tecnolandia-bot",
+  "version": "1.0.0",
+  "description": "Bot Tecnolandia",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
 
